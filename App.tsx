@@ -1,20 +1,34 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import ThemeProvider from '@/context/ThemeContext';
+import { RootNavigation } from '@/navigation';
+import { useFonts } from 'expo-font';
+import { useCallback } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
+import { View } from 'react-native';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
+  const [fontsLoaded, fontError] = useFonts({
+    'Arvo-Bold': require('./assets/fonts/Arvo/Arvo-Bold.ttf'),
+    'Arvo-Regular': require('./assets/fonts/Arvo/Arvo-Regular.ttf'),
+  });
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded || fontError) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
+    <View onLayout={onLayoutRootView} style={{flex:1}}>
+      <ThemeProvider>
+        <RootNavigation />
+      </ThemeProvider>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
